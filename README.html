@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NemoForge — Hackathon Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f0ebe3;
+      --bg-card: #ede8e0;
+      --shadow-light: #ffffff;
+      --shadow-dark: #d4cfc7;
+      --fg: #2a2520;
+      --muted: #7a7268;
+      --accent-indigo: #4f46e5;
+      --accent-emerald: #059669;
+      --accent-red: #dc2626;
+      --accent-amber: #d97706;
+      --accent-cyan: #0891b2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Slide container */
+    #deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 56px 72px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.45s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none;
+    }
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* Neumorphic helpers */
+    .neu {
+      background: var(--bg-card);
+      border-radius: 18px;
+      box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    }
+    .neu-pressed {
+      background: var(--bg);
+      border-radius: 14px;
+      box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+    }
+    .neu-sm {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    }
+
+    /* Nav bar */
+    #nav {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border-radius: 40px;
+      padding: 10px 20px;
+      box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+      z-index: 100;
+    }
+    .nav-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: box-shadow 0.2s;
+      color: var(--fg);
+    }
+    .nav-btn:hover {
+      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    }
+    .nav-btn:active {
+      box-shadow: inset 2px 2px 6px var(--shadow-dark), inset -2px -2px 6px var(--shadow-light);
+    }
+    #slide-counter {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 48px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .dot-row { display: flex; gap: 6px; align-items: center; }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--shadow-dark);
+      transition: background 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+    .dot.on { background: var(--accent-indigo); transform: scale(1.3); }
+
+    /* Brand tag */
+    .brand-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--accent-indigo);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .section-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+
+    /* Pills */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-card);
+      box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+    }
+    .pill-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+
+    /* ── SLIDE 1: Title ─────────────────────────────── */
+    #s1 { flex-direction: row; gap: 48px; align-items: stretch; }
+    .s1-left { flex: 1.1; display: flex; flex-direction: column; justify-content: center; }
+    .s1-right { flex: 1; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+    .s1-hackathon {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-red);
+      border: 1.5px solid var(--accent-red);
+      padding: 4px 12px; border-radius: 99px;
+      margin-bottom: 20px; width: fit-content;
+    }
+    .s1-title { font-size: 72px; font-weight: 900; line-height: 1.0; letter-spacing: -2px; color: var(--fg); }
+    .s1-title em { font-style: normal; color: var(--accent-indigo); }
+    .s1-subtitle { font-size: 20px; font-weight: 500; color: var(--muted); margin-top: 10px; }
+    .s1-desc { font-size: 15px; color: var(--muted); margin-top: 12px; line-height: 1.65; max-width: 380px; }
+    .s1-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .s1-url {
+      margin-top: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: var(--accent-emerald); font-weight: 600;
+    }
+    .s1-card { padding: 24px; }
+    .s1-card-title { font-size: 13px; font-weight: 700; color: var(--fg); margin-bottom: 8px; }
+    .s1-card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .stats-row { display: flex; gap: 16px; margin-top: 16px; }
+    .stat-box { flex: 1; padding: 16px; text-align: center; }
+    .stat-num { font-size: 32px; font-weight: 900; color: var(--accent-indigo); }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ── SLIDE 2: Problem ────────────────────────────── */
+    #s2 h1 { font-size: 48px; font-weight: 900; line-height: 1.1; margin-bottom: 8px; }
+    .problem-insight {
+      padding: 14px 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--accent-cyan);
+      background: rgba(8,145,178,0.06);
+      margin-bottom: 28px;
+    }
+    .problem-insight strong { font-size: 13px; color: var(--accent-cyan); font-weight: 700; }
+    .problem-insight p { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; flex: 1; }
+    .problem-card { padding: 28px; display: flex; flex-direction: column; }
+    .problem-num { font-size: 40px; font-weight: 900; opacity: 0.18; margin-bottom: 8px; }
+    .problem-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+    .problem-card .sub { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 14px; letter-spacing: 0.06em; }
+    .problem-card p { font-size: 13px; color: var(--muted); line-height: 1.65; flex: 1; }
+    .problem-layer {
+      margin-top: 16px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 4px 12px;
+      border-radius: 99px; width: fit-content;
+    }
+
+    /* ── SLIDE 3: Architecture ───────────────────────── */
+    #s3 h1 { font-size: 42px; font-weight: 900; margin-bottom: 24px; }
+    .arch-wrapper { display: flex; gap: 24px; flex: 1; }
+    .arch-col { display: flex; flex-direction: column; gap: 14px; }
+    .arch-col.w1 { width: 200px; }
+    .arch-col.w2 { flex: 1; }
+    .arch-label {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
+    }
+    .arch-node {
+      padding: 14px 18px;
+      border-radius: 14px;
+    }
+    .arch-node h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .arch-node p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .arch-node .badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 99px; margin-bottom: 6px;
+      letter-spacing: 0.08em;
+    }
+    .arch-arrow {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: var(--muted); padding: 4px 0;
+    }
+    .arch-bottom { display: flex; gap: 14px; }
+    .pipeline-box {
+      flex: 1; padding: 18px 20px; border-radius: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .pipeline-box h4 { font-size: 13px; font-weight: 800; }
+    .pipeline-box p { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .pipeline-box .tag {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 99px;
+      width: fit-content; letter-spacing: 0.06em;
+    }
+
+    /* ── SLIDE 4: Tech Deep-Dive ─────────────────────── */
+    #s4 h1 { font-size: 42px; font-weight: 900; margin-bottom: 24px; }
+    .tech-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; flex: 1; }
+    .tech-card { padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .tech-card .icon { font-size: 28px; margin-bottom: 4px; }
+    .tech-card h3 { font-size: 16px; font-weight: 800; }
+    .tech-card .lib {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; padding: 3px 8px; border-radius: 6px;
+      background: var(--neu-pressed);
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      width: fit-content; color: var(--muted); font-weight: 600;
+    }
+    .tech-card p { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .tech-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .tech-card ul li {
+      font-size: 12px; color: var(--muted); padding-left: 16px; position: relative; line-height: 1.5;
+    }
+    .tech-card ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent-indigo); font-weight: 700; }
+
+    /* ── SLIDE 5: Demo & UI ──────────────────────────── */
+    #s5 h1 { font-size: 42px; font-weight: 900; margin-bottom: 6px; }
+    .design-note {
+      padding: 10px 18px; border-radius: 10px;
+      border-left: 3px solid var(--accent-indigo);
+      background: rgba(79,70,229,0.06);
+      font-size: 12px; color: var(--muted); margin-bottom: 24px; line-height: 1.6;
+    }
+    .demo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; flex: 1; }
+    .demo-card { padding: 24px; display: flex; flex-direction: column; }
+    .demo-letter {
+      font-size: 28px; font-weight: 900; margin-bottom: 8px;
+    }
+    .demo-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+    .demo-card p { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .demo-features { margin-top: 14px; }
+    .demo-features .label { font-size: 11px; font-weight: 700; color: var(--accent-emerald); margin-bottom: 6px; }
+    .demo-features ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .demo-features ul li {
+      font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px;
+    }
+    .demo-features ul li::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-emerald); flex-shrink: 0;
+    }
+    .demo-mock {
+      margin-top: 12px; height: 50px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--shadow-dark) 0%, transparent 100%);
+      opacity: 0.3;
+    }
+
+    /* ── SLIDE 6: Live Pipeline ──────────────────────── */
+    #s6 h1 { font-size: 42px; font-weight: 900; margin-bottom: 6px; }
+    .pipeline-desc { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+    .pipeline-flow {
+      display: flex; align-items: stretch; gap: 0; flex: 1;
+    }
+    .pipe-stage {
+      flex: 1; padding: 28px; border-radius: 18px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .pipe-connector {
+      display: flex; align-items: center; justify-content: center;
+      width: 48px; flex-shrink: 0; position: relative;
+    }
+    .pipe-connector::before {
+      content: ''; position: absolute;
+      top: 50%; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent-indigo), var(--accent-emerald));
+    }
+    .pipe-connector span {
+      font-size: 18px; z-index: 1;
+      background: var(--bg); padding: 2px;
+    }
+    .pipe-stage .num {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .pipe-stage h3 { font-size: 18px; font-weight: 800; }
+    .pipe-stage .powered { font-size: 11px; font-weight: 700; }
+    .pipe-stage ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .pipe-stage ul li {
+      font-size: 13px; color: var(--muted); padding-left: 16px; position: relative; line-height: 1.5;
+    }
+    .pipe-stage ul li::before { content: '↳'; position: absolute; left: 0; font-weight: 700; }
+    .pipe-output {
+      margin-top: 12px; padding: 12px 16px; border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; line-height: 1.7;
+    }
+
+    /* ── SLIDE 7: Closing ────────────────────────────── */
+    #s7 { align-items: center; justify-content: center; text-align: center; }
+    .s7-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-emerald); margin-bottom: 16px; }
+    .s7-title { font-size: 56px; font-weight: 900; line-height: 1.05; margin-bottom: 12px; letter-spacing: -1.5px; }
+    .s7-title span { color: var(--accent-indigo); }
+    .s7-sub { font-size: 16px; color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 40px; }
+    .s7-pills { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 48px; }
+    .s7-pill {
+      padding: 8px 20px; border-radius: 99px;
+      font-size: 13px; font-weight: 700;
+      background: var(--bg-card);
+      box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
+    }
+    .s7-links { display: flex; gap: 24px; }
+    .s7-link {
+      padding: 14px 32px; border-radius: 14px;
+      font-size: 14px; font-weight: 700;
+      background: var(--bg-card);
+      box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
+      text-decoration: none; color: var(--fg);
+      transition: box-shadow 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .s7-link:hover {
+      box-shadow: 7px 7px 16px var(--shadow-dark), -7px -7px 16px var(--shadow-light);
+    }
+    .s7-link.primary { color: var(--accent-indigo); }
+    .s7-link.secondary { color: var(--accent-emerald); }
+
+    /* ── PRINT / PDF ─────────────────────────────────────── */
+    @media print {
+      /* Force Chrome to render all colors and backgrounds */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* Each slide becomes its own PDF page */
+      body { overflow: visible !important; height: auto !important; }
+      #deck { height: auto !important; position: static !important; }
+      #nav { display: none !important; }
+
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: all !important;
+        page-break-after: always;
+        break-after: page;
+        height: 100vh;
+        padding: 56px 72px;
+      }
+      .slide:last-child { page-break-after: avoid; break-after: avoid; }
+
+      /*
+        Neumorphic shadow substitute for print:
+        top+left = white (simulates light source hitting from top-left)
+        bottom+right = #c8c3bb (simulates shadow falling away)
+        This mimics the exact visual language of the box-shadow pair.
+      */
+      .neu {
+        box-shadow: none !important;
+        border-top: 2px solid #ffffff !important;
+        border-left: 2px solid #ffffff !important;
+        border-bottom: 2px solid #c8c3bb !important;
+        border-right: 2px solid #c8c3bb !important;
+      }
+      .neu-sm {
+        box-shadow: none !important;
+        border-top: 1.5px solid #ffffff !important;
+        border-left: 1.5px solid #ffffff !important;
+        border-bottom: 1.5px solid #c8c3bb !important;
+        border-right: 1.5px solid #c8c3bb !important;
+      }
+      /* Pressed = inverted light source */
+      .neu-pressed {
+        box-shadow: none !important;
+        border-top: 1.5px solid #c8c3bb !important;
+        border-left: 1.5px solid #c8c3bb !important;
+        border-bottom: 1.5px solid #ffffff !important;
+        border-right: 1.5px solid #ffffff !important;
+        background: #ebe6de !important;
+      }
+
+      /* Navigation buttons */
+      .nav-btn { box-shadow: none !important; border: 1px solid #c8c3bb !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ── SLIDE 1: TITLE ── -->
+  <div class="slide active" id="s1">
+    <div class="brand-tag">NemoForge</div>
+    <div style="display:flex;gap:48px;flex:1;align-items:stretch;">
+
+      <div class="s1-left">
+        <div class="s1-hackathon">Bright Data × NVIDIA Hackathon</div>
+        <div class="s1-title">Nemo<em>Forge</em></div>
+        <div class="s1-subtitle">Secure AI Web Data Agent Platform</div>
+        <div class="s1-desc">End-to-end autonomous research agents that the web cannot stop. Powered by Bright Data residential proxies, Ghost Cursor behavioural stealth, and NVIDIA Llama-3.1 intelligence.</div>
+        <div class="s1-pills">
+          <span class="pill"><span class="pill-dot" style="background:var(--accent-red)"></span>Bright Data Scraping Browser</span>
+          <span class="pill"><span class="pill-dot" style="background:var(--accent-indigo)"></span>NVIDIA Llama-3.1-8b</span>
+          <span class="pill"><span class="pill-dot" style="background:var(--accent-emerald)"></span>Ghost Cursor</span>
+          <span class="pill"><span class="pill-dot" style="background:var(--accent-amber)"></span>React + Framer Motion</span>
+        </div>
+        <div class="s1-url">nemoforge.vercel.app</div>
+      </div>
+
+      <div class="s1-right">
+        <div class="neu s1-card" style="border-left:3px solid var(--accent-red)">
+          <div class="s1-card-title">Evasion</div>
+          <div class="s1-card-desc">Bypasses Cloudflare, Akamai & PerimeterX via Bright Data's residential browser fingerprints and IP rotation.</div>
+        </div>
+        <div class="neu s1-card" style="border-left:3px solid var(--accent-amber)">
+          <div class="s1-card-title">Stealth</div>
+          <div class="s1-card-desc">Ghost Cursor generates Bézier-curve mouse paths statistically indistinguishable from human movement.</div>
+        </div>
+        <div class="neu s1-card" style="border-left:3px solid var(--accent-emerald)">
+          <div class="s1-card-title">Intelligence</div>
+          <div class="s1-card-desc">NVIDIA Llama-3.1 reads the scraped DOM as context and answers any natural language prompt — analyst-grade output.</div>
+        </div>
+        <div class="stats-row">
+          <div class="neu-sm stat-box"><div class="stat-num">3</div><div class="stat-label">Evasion Layers</div></div>
+          <div class="neu-sm stat-box"><div class="stat-num">1</div><div class="stat-label">Unified Platform</div></div>
+          <div class="neu-sm stat-box"><div class="stat-num">∞</div><div class="stat-label">DOM Adaptability</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2: PROBLEM ── -->
+  <div class="slide" id="s2">
+    <div class="section-tag" style="background:rgba(220,38,38,0.1);color:var(--accent-red)">02 / The Problem</div>
+    <h1>Three Walls That Kill Every Scraper</h1>
+    <div class="problem-insight" style="margin-top:12px;">
+      <strong>The Insight:</strong>
+      <p>Solving layer 1 doesn't solve layer 2. Solving both still leaves you with brittle, schema-dependent extraction. NemoForge eliminates all three simultaneously.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="neu problem-card">
+        <div class="problem-num" style="color:var(--accent-red)">01</div>
+        <h3>Enterprise Anti-Bot</h3>
+        <div class="sub">Cloudflare · Akamai · PerimeterX</div>
+        <p>TLS fingerprinting, IP reputation scoring and JS challenge injection block datacenter IPs before the first request lands.</p>
+        <div class="problem-layer" style="background:rgba(220,38,38,0.1);color:var(--accent-red)">Layer 1 — Network</div>
+      </div>
+      <div class="neu problem-card">
+        <div class="problem-num" style="color:var(--accent-amber)">02</div>
+        <h3>Behavioural Analytics</h3>
+        <div class="sub">Mouse velocity · Scroll entropy · Click patterns</div>
+        <p>ML models track how you move, not just where you come from. Robotic patterns trigger bans within seconds, even on clean residential IPs.</p>
+        <div class="problem-layer" style="background:rgba(217,119,6,0.1);color:var(--accent-amber)">Layer 2 — Behaviour</div>
+      </div>
+      <div class="neu problem-card">
+        <div class="problem-num" style="color:var(--accent-indigo)">03</div>
+        <h3>DOM Complexity</h3>
+        <div class="sub">Dynamic JS · Shadow DOMs · Mutation observers</div>
+        <p>CSS selectors break on every deploy. Predefined schemas fail when the target site restructures. Pipelines become full-time maintenance jobs.</p>
+        <div class="problem-layer" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo)">Layer 3 — Structure</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3: ARCHITECTURE ── -->
+  <div class="slide" id="s3">
+    <div class="section-tag" style="background:rgba(5,150,105,0.1);color:var(--accent-emerald)">03 / Architecture</div>
+    <h1>Three Hard Problems. One Cohesive Platform.</h1>
+
+    <div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Frontend row -->
+      <div style="display:flex;gap:14px;">
+        <div style="width:80px;display:flex;align-items:center;">
+          <span style="font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">FRONTEND</span>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-indigo);">
+          <div class="badge" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo);">React + Vite</div>
+          <h4>Cream Neumorphic UI</h4>
+          <p>Framer Motion micro-interactions · Zustand state · Markdown export</p>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-indigo);">
+          <div class="badge" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo);">WebSocket</div>
+          <h4>Live Viewport Stream</h4>
+          <p>base64 screenshots + execution logs — real-time, not a replay</p>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-indigo);">
+          <div class="badge" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo);">Export</div>
+          <h4>Markdown Output</h4>
+          <p>AI analysis formatted and downloaded as a native .md file</p>
+        </div>
+      </div>
+
+      <!-- Orchestrator -->
+      <div style="display:flex;gap:14px;align-items:center;">
+        <div style="width:80px;display:flex;align-items:center;">
+          <span style="font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">ORCH.</span>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-emerald);">
+          <div class="badge" style="background:rgba(5,150,105,0.1);color:var(--accent-emerald);">Node.js · BullMQ · SQLite</div>
+          <h4>WebSocket Orchestrator</h4>
+          <p>Broadcasts real-time events + screenshots · Persists session history to SQLite · Renders blueprint on Render</p>
+        </div>
+      </div>
+
+      <!-- Agent layer -->
+      <div style="display:flex;gap:14px;">
+        <div style="width:80px;display:flex;align-items:center;">
+          <span style="font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">AGENT</span>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-red);">
+          <div class="badge" style="background:rgba(220,38,38,0.1);color:var(--accent-red);">Stage 1 — NemoClaw</div>
+          <h4>Bright Data Browser</h4>
+          <p>puppeteer.connect(WS) · IP rotation · CAPTCHA bypass · Fingerprinting</p>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-amber);">
+          <div class="badge" style="background:rgba(217,119,6,0.1);color:var(--accent-amber);">Stage 1 — Stealth</div>
+          <h4>Ghost Cursor</h4>
+          <p>Bézier mouse paths · Human scroll entropy · Click simulation</p>
+        </div>
+        <div class="neu arch-node" style="flex:1;border-top:2px solid var(--accent-indigo);">
+          <div class="badge" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo);">Stage 2 — NVIDIA NIM</div>
+          <h4>Llama-3.1-8b-instruct</h4>
+          <p>Cleaned DOM → context · NL prompt → structured answer · No CSS selectors</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4: TECH DEEP DIVE ── -->
+  <div class="slide" id="s4">
+    <div class="section-tag" style="background:rgba(8,145,178,0.1);color:var(--accent-cyan)">04 / Technology</div>
+    <h1>Three Technologies. Each Best-in-Class.</h1>
+    <div class="tech-grid">
+      <div class="neu tech-card" style="border-top:3px solid var(--accent-red)">
+        <div class="icon">🌐</div>
+        <h3>Bright Data Scraping Browser</h3>
+        <div class="neu-pressed lib">puppeteer-core · WS connect</div>
+        <p>Instead of a local Chromium, NemoForge dials into Bright Data's residential browser cluster over WebSockets. The agent runs inside a real browser on a real residential IP.</p>
+        <ul>
+          <li>TLS fingerprint matches real Chrome</li>
+          <li>Residential IP from 72M+ pool</li>
+          <li>Built-in CAPTCHA resolution</li>
+          <li>Web Unlocker for API-level bypass</li>
+        </ul>
+      </div>
+      <div class="neu tech-card" style="border-top:3px solid var(--accent-amber)">
+        <div class="icon">🖱️</div>
+        <h3>Ghost Cursor</h3>
+        <div class="neu-pressed lib">ghost-cursor · bezier paths</div>
+        <p>Most bots move the mouse in straight lines. Ghost Cursor generates statistically human Bézier curves — with overshoot, fatigue, and natural deceleration.</p>
+        <ul>
+          <li>Bézier-curve trajectories per move</li>
+          <li>Injected visible cursor for demo viewport</li>
+          <li>Random clicks defeat passive CAPTCHAs</li>
+          <li>Scroll entropy mimics reading behaviour</li>
+        </ul>
+      </div>
+      <div class="neu tech-card" style="border-top:3px solid var(--accent-indigo)">
+        <div class="icon">🤖</div>
+        <h3>NVIDIA Llama-3.1-8b-instruct</h3>
+        <div class="neu-pressed lib">NVIDIA NIM API · /v1/chat</div>
+        <p>The cleaned DOM text (up to 15k chars) is sent to <code style="font-family:monospace;font-size:11px">meta/llama-3.1-8b-instruct</code> via the NVIDIA NIM API. The model acts as a human analyst reading the page.</p>
+        <ul>
+          <li>No CSS selectors — schema-free extraction</li>
+          <li>Natural language prompt → structured answer</li>
+          <li>Markdown-formatted analyst report</li>
+          <li>Works even if site restructures completely</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5: DEMO & UI ── -->
+  <div class="slide" id="s5">
+    <div class="section-tag" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo)">05 / Demo & UI</div>
+    <h1>Watch Your Agent Think — Live</h1>
+    <div class="design-note">
+      <strong>Design philosophy:</strong> Premium Cream Neumorphic UI with Framer Motion micro-interactions — because first impressions signal the quality of engineering underneath.
+    </div>
+    <div class="demo-grid">
+      <div class="neu demo-card" style="border-top:3px solid var(--accent-emerald)">
+        <div class="demo-letter" style="color:var(--accent-emerald)">A</div>
+        <h3>Agent Builder Dashboard</h3>
+        <p>Configure agent missions in plain English — no selectors, no XPath, no schema. Example: "Track iPhone 17 Pro pricing across Amazon and Best Buy — tell me the historical low."</p>
+        <div class="demo-features">
+          <div class="label">Key features</div>
+          <ul>
+            <li>Plain-language intent prompt</li>
+            <li>Target URL config</li>
+            <li>Stealth Level selector (Standard / Advanced / Bright Data)</li>
+          </ul>
+        </div>
+        <div class="demo-mock"></div>
+      </div>
+      <div class="neu demo-card" style="border-top:3px solid var(--accent-red)">
+        <div class="demo-letter" style="color:var(--accent-red)">B</div>
+        <h3>Live Execution Feed</h3>
+        <p>Real-time WebSocket log stream: connection events, navigations, CAPTCHA resolutions, and Ghost Cursor movements on the left. Live base64 viewport on the right. Not a replay. This is live.</p>
+        <div class="demo-features">
+          <div class="label">Key features</div>
+          <ul>
+            <li>Live WS log stream</li>
+            <li>Viewport preview (base64 screenshots)</li>
+            <li>Timestamped execution trace</li>
+          </ul>
+        </div>
+        <div class="demo-mock"></div>
+      </div>
+      <div class="neu demo-card" style="border-top:3px solid var(--accent-indigo)">
+        <div class="demo-letter" style="color:var(--accent-indigo)">C</div>
+        <h3>AI Analysis Output</h3>
+        <p>NVIDIA Llama-3.1 delivers structured Markdown — analyst-grade answers to complex business queries. Native Markdown export. Two minutes vs two human hours of research.</p>
+        <div class="demo-features">
+          <div class="label">Key features</div>
+          <ul>
+            <li>Structured Markdown output</li>
+            <li>Native .md export</li>
+            <li>Zustand-powered real-time state</li>
+          </ul>
+        </div>
+        <div class="demo-mock"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6: PIPELINE WALKTHROUGH ── -->
+  <div class="slide" id="s6">
+    <div class="section-tag" style="background:rgba(5,150,105,0.1);color:var(--accent-emerald)">06 / How It Works</div>
+    <h1>The Two-Stage Intelligence Pipeline</h1>
+    <p class="pipeline-desc">NemoForge is not a single model. Stage 1 solves <em>access</em>. Stage 2 solves <em>comprehension</em>. Together they replace hours of manual research with a two-minute agent run.</p>
+
+    <!-- 2×2 grid — fits A4 portrait without overflow -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:18px;flex:1;">
+
+      <!-- Input -->
+      <div class="pipeline-box neu" style="border-top:3px solid var(--muted);position:relative;">
+        <div class="tag" style="background:rgba(122,114,104,0.1);color:var(--muted)">① Input</div>
+        <h4 style="font-size:15px;font-weight:800;margin-bottom:6px;">User Prompt</h4>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">"As an analyst, search historical pricing of iPhone 17 Pro and tell me the best time to buy."</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;">+ Target domain: <span style="font-family:monospace">apple.com</span></p>
+        <!-- arrow to Stage 1 -->
+        <div style="position:absolute;bottom:-14px;right:24px;font-size:18px;color:var(--accent-red);z-index:2;">↓</div>
+      </div>
+
+      <!-- Output -->
+      <div class="pipeline-box neu" style="border-top:3px solid var(--accent-emerald);position:relative;">
+        <div class="tag" style="background:rgba(5,150,105,0.1);color:var(--accent-emerald)">④ Output</div>
+        <h4 style="font-size:15px;font-weight:800;margin-bottom:6px;">Analyst Report</h4>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;">Structured Markdown with pricing history, seasonal trends, and buy-time recommendation.</p>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;">Downloaded as <span style="font-family:monospace">nemoforge-result.md</span></p>
+        <!-- arrow from Stage 2 -->
+        <div style="position:absolute;top:-14px;left:24px;font-size:18px;color:var(--accent-indigo);z-index:2;">↑</div>
+      </div>
+
+      <!-- Stage 1 NemoClaw -->
+      <div class="pipeline-box neu" style="border-top:3px solid var(--accent-red);position:relative;">
+        <div class="tag" style="background:rgba(220,38,38,0.1);color:var(--accent-red)">② Stage 1 — NemoClaw Browser Agent</div>
+        <h4 style="font-size:15px;font-weight:800;margin:6px 0;">Bright Data + Ghost Cursor</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-red);font-weight:700;">↳</span>Bright Data WS connect · IP rotation</li>
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-red);font-weight:700;">↳</span>Ghost Cursor Bézier navigation</li>
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-red);font-weight:700;">↳</span>Live base64 screenshot stream</li>
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-red);font-weight:700;">↳</span>DOM text extracted (15k chars)</li>
+        </ul>
+        <div class="neu-pressed pipe-output" style="color:var(--accent-red);margin-top:10px;">✓ Browser connected · ✓ Ghost cursor active · ✓ DOM extracted</div>
+        <!-- arrow to Stage 2 -->
+        <div style="position:absolute;top:50%;right:-14px;font-size:18px;color:var(--accent-indigo);z-index:2;transform:translateY(-50%);">→</div>
+      </div>
+
+      <!-- Stage 2 NVIDIA -->
+      <div class="pipeline-box neu" style="border-top:3px solid var(--accent-indigo);">
+        <div class="tag" style="background:rgba(79,70,229,0.1);color:var(--accent-indigo)">③ Stage 2 — NVIDIA NIM API</div>
+        <h4 style="font-size:15px;font-weight:800;margin:6px 0;">Llama-3.1-8b-instruct</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-indigo);font-weight:700;">↳</span>DOM text fed as LLM context</li>
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-indigo);font-weight:700;">↳</span>Original natural language prompt</li>
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-indigo);font-weight:700;">↳</span>Analyst-grade Markdown answer</li>
+          <li style="font-size:12px;color:var(--muted);padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--accent-indigo);font-weight:700;">↳</span>No CSS selectors — schema-free</li>
+        </ul>
+        <div class="neu-pressed pipe-output" style="color:var(--accent-indigo);margin-top:10px;">✓ Analysis complete · ✓ Markdown ready · ✓ Export available</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7: CLOSING ── -->
+  <div class="slide" id="s7">
+    <div class="s7-tag">NemoForge — Hackathon Submission</div>
+    <div class="s7-title">The web has<br/><span>no walls left.</span></div>
+    <p class="s7-sub">Bright Data defeats the network. Ghost Cursor defeats behaviour analytics. NVIDIA Llama-3.1 defeats DOM complexity. One platform. One prompt. Done.</p>
+    <div class="s7-pills">
+      <span class="s7-pill" style="color:var(--accent-red)">🌐 Bright Data Scraping Browser</span>
+      <span class="s7-pill" style="color:var(--accent-amber)">🖱️ Ghost Cursor</span>
+      <span class="s7-pill" style="color:var(--accent-indigo)">🤖 NVIDIA Llama-3.1-8b</span>
+      <span class="s7-pill" style="color:var(--accent-emerald)">⚡ Real-time WebSockets</span>
+      <span class="s7-pill" style="color:var(--muted)">🎨 Cream Neumorphic UI</span>
+      <span class="s7-pill" style="color:var(--muted)">🗄️ SQLite Persistence</span>
+      <span class="s7-pill" style="color:var(--muted)">☁️ Docker-ready · Render-deployed</span>
+      <span class="s7-pill" style="color:var(--muted)">⚙️ Zustand State Management</span>
+    </div>
+    <div class="s7-links">
+      <a href="https://nemoforge.vercel.app" target="_blank" class="s7-link primary">nemoforge.vercel.app ↗</a>
+      <a href="https://github.com/ShivtejG236/Web-Data-Agentic-Browsing" target="_blank" class="s7-link secondary">github.com/ShivtejG236 ↗</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div id="nav">
+  <button class="nav-btn" id="prev">←</button>
+  <div class="dot-row" id="dots"></div>
+  <span id="slide-counter">1 / 7</span>
+  <button class="nav-btn" id="next">→</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('slide-counter');
+  let current = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    if (n === current) return;
+    const dir = n > current ? 1 : -1;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 450);
+    current = n;
+    slides[current].style.transform = `translateX(${dir * 60}px)`;
+    slides[current].style.opacity = '0';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        slides[current].style.transform = '';
+        slides[current].style.opacity = '';
+        slides[current].classList.add('active');
+      });
+    });
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === current));
+    counter.textContent = `${current + 1} / ${slides.length}`;
+  }
+
+  document.getElementById('next').onclick = () => goTo(Math.min(current + 1, slides.length - 1));
+  document.getElementById('prev').onclick = () => goTo(Math.max(current - 1, 0));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') goTo(Math.min(current + 1, slides.length - 1));
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(Math.max(current - 1, 0));
+  });
+</script>
+
+</body>
+</html>

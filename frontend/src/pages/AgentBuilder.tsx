@@ -85,6 +85,7 @@ const AgentBuilder = () => {
               Target Domain
             </label>
             <input 
+              type="text"
               required
               className="w-full neu-pressed bg-transparent p-4 rounded-xl text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
               placeholder="e.g., amazon.com"

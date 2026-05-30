@@ -14,15 +14,18 @@ export interface StealthBrowserConfig {
 export async function launchStealthBrowser(config: StealthBrowserConfig = {}): Promise<Browser> {
   const { useBrightData, stealthLevel } = config;
 
-  if (useBrightData && process.env.BRIGHTDATA_WS_ENDPOINT) {
+  if (useBrightData) {
+    if (!process.env.BRIGHTDATA_WS_ENDPOINT) {
+      throw new Error('BRIGHTDATA_WS_ENDPOINT environment variable is missing.');
+    }
     console.log('🌐 Launching browser via Bright Data Scraping Browser...');
     try {
       const browser = await puppeteer.connect({
         browserWSEndpoint: process.env.BRIGHTDATA_WS_ENDPOINT,
       });
       return browser as unknown as Browser;
-    } catch (error) {
-      console.error('Failed to connect to Bright Data WS endpoint, falling back to local.', error);
+    } catch (error: any) {
+      throw new Error(`Failed to connect to Bright Data WS endpoint: ${error.message}`);
     }
   }
 
