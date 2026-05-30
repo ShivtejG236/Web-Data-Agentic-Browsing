@@ -1,4 +1,4 @@
-import { LayoutDashboard, Bot, Database, Shield, Settings } from 'lucide-react';
+import { LayoutDashboard, Bot, Database, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 
