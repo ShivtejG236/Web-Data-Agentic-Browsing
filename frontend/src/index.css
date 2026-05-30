@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #6366f1;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+}
+
+@layer base {
+  :root {
+    --background: #e6eef5; /* Soft Creamy/Gray Blue Base */
+    --surface: #e6eef5;
+    --surface-elevated: #e6eef5;
+    
+    --foreground: #2d3748; /* Slate 800 */
+    --muted: #718096;      /* Slate 500 */
+    
+    /* Neumorphic Shadows (Light Theme) */
+    --shadow-outset: 8px 8px 16px #c4d0df, -8px -8px 16px #ffffff;
+    --shadow-inset: inset 6px 6px 12px #c4d0df, inset -6px -6px 12px #ffffff;
+    --shadow-glow: 0 0 15px rgba(99, 102, 241, 0.4);
+    
+    --radius: 1rem;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .neu-card {
+    background-color: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-outset);
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+  
+  .neu-pressed {
+    background-color: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-inset);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+  
+  .neu-button {
+    background-color: var(--surface-elevated);
+    border-radius: 0.75rem;
+    box-shadow: 4px 4px 10px #c4d0df, -4px -4px 10px #ffffff;
+    transition: all 0.2s ease;
+  }
+  
+  .neu-button:hover {
+    box-shadow: var(--shadow-glow);
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+
+  .neu-button:active {
+    box-shadow: var(--shadow-inset);
+  }
+}
